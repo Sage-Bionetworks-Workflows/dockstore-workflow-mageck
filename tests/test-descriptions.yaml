@@ -1,7 +1,10 @@
-- job: echo_hello_world.yaml
-  output:
-    echo_out: "hello, world!"
-  tool: ../main.cwl
-  label: workflow_example_test
-  id: 0
-  doc: Placeholder test
+- label: mageck_synapse_basic
+  doc: Test the Synapse-wrapped MAGeCK workflow (one comparison)
+  tool: ../subworkflows/mageck_synapse.cwl
+  job: jobs/mageck_synapse_basic.yaml
+  output: {}
+- label: mageck_synapse_scatter
+  doc: Test the Synapse-wrapped MAGeCK workflow (many comparisons)
+  tool: ../mageck_synapse_scatter.cwl
+  job: jobs/mageck_synapse_scatter.yaml
+  output: {}

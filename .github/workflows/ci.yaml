@@ -28,11 +28,20 @@ jobs:
           pipenv install --dev
           short_sha=${GITHUB_SHA::8}
           echo "::set-env name=SHORT_SHA::$short_sha"
+          # create synapse config file for integration test
+          OUTPUT_FILE=/tmp/.synapseConfig
+          cat > "$OUTPUT_FILE" << EOM
+          [authentication]
+          username = "${{ secrets.SYNAPSE_USERNAME }}"
+          apikey = "${{ secrets.SYNAPSE_API_KEY }}"
+          EOM
+          chmod +x "$OUTPUT_FILE"
 
       - name: Test CWL
         id: test_cwl
-        run: |
-          pipenv run cwltest --test tests/test-descriptions.yaml --tool cwl-runner
+        run: >
+          pipenv run cwltest --test tests/test-descriptions.yaml --tool cwl-runner 
+          --test-arg 'cwltool=--parallel' --timeout 1800
 
   tag:
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"

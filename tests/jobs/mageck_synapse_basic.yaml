@@ -1,19 +1,15 @@
 synapse_config: 
   class: File
-  path: /Users/bgrande/.synapseConfig
+  path: /tmp/.synapseConfig
 
-library_fileview: syn22344156
+library_fileview: syn23426683
+output_parent_synapse_id: syn23426715
 
+comparison_name: CA_Comp1
 library_name: HUEPI
-
 treatment_synapse_ids:
-  - syn22028932
-  - syn22028933
-
+  - syn23426427
+  - syn23426432
 control_synapse_ids:
-  - syn22028926
-  - syn22028927
-
-output_prefix: CA_Comp1
-
-output_parent_synapse_id: syn23344520
+  - syn23426435
+  - syn23426437

@@ -1,0 +1,35 @@
+synapse_config: 
+  class: File
+  path: /tmp/.synapseConfig
+
+library_fileview: syn23426683
+output_parent_synapse_id: syn23426715
+
+comparisons:
+
+  - comparison_name: CA_Comp1
+    library_name: HUEPI
+    treatment_synapse_ids:
+      - syn23426427
+      - syn23426432
+    control_synapse_ids:
+      - syn23426435
+      - syn23426437
+      
+  - comparison_name: CA_Comp2
+    library_name: HUEPI
+    treatment_synapse_ids:
+      - syn23426439
+      - syn23426444
+    control_synapse_ids:
+      - syn23426450
+      - syn23426451
+
+  # - comparison_name: VM_Comp1
+  #   library_name: TKOV3
+  #   treatment_synapse_ids:
+  #     - syn23426456
+  #     - syn23426460
+  #   control_synapse_ids:
+  #     - syn23426465
+  #     - syn23426468
