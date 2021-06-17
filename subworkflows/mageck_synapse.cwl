@@ -84,12 +84,20 @@ steps:
       output_prefix: comparison_name
     out:
       - output_file
+  
+  - id: add_missing_ntc
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-add_missing_ntc/main/cwl/add_missing_ntc.cwl
+    in:
+      count_file: merge_counts_files/output_file
+      reference_file: get_reference_ntc/filepath
+    out:
+      - output_file 
 
   - id: mageck_median_norm
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-mageck/v0.0.7/cwl/mageck.cwl
     in: 
       count_table: 
-        source: merge_counts_files/output_file
+        source: add_missing_ntc/output_file
       treatment_ids: 
         source: syn_get_treatment_counts_files/filepath
         valueFrom: $(self.map(function (f) {return f.nameroot}))
@@ -111,7 +119,7 @@ steps:
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-mageck/v0.0.7/cwl/mageck.cwl
     in: 
       count_table: 
-        source: merge_counts_files/output_file
+        source: add_missing_ntc/output_file
       treatment_ids: 
         source: syn_get_treatment_counts_files/filepath
         valueFrom: $(self.map(function (f) {return f.nameroot}))
@@ -210,3 +218,7 @@ s:author:
     s:name: Bruno Grande
     s:email: bruno.grande@sagebase.org
     s:identifier: https://orcid.org/0000-0002-4621-1589
+  - class: s:Person
+    s:name: Xindi Guo
+    s:email: xindi.guo@sagebase.org
+    s:identifier: https://orcid.org/0000-0002-0479-4317
