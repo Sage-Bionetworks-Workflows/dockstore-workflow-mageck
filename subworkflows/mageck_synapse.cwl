@@ -88,8 +88,10 @@ steps:
   - id: add_missing_ntc
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-add_missing_ntc/main/cwl/add_missing_ntc.cwl
     in:
-      count_file: merge_counts_files/output_file
-      reference_file: get_reference_ntc/filepath
+      count_file: 
+        source: merge_counts_files/output_file
+      reference_file: 
+        source: get_reference_ntc/filepath
     out:
       - output_file 
 
