@@ -74,37 +74,49 @@ steps:
       - synapse_id
       - filepath
 
-  - id: merge_counts_files
-    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-merge_counts_files/v0.0.2/cwl/merge_counts_files.cwl
-    in: 
-      counts_files: 
-        source: [syn_get_treatment_counts_files/filepath, syn_get_control_counts_files/filepath]
-        linkMerge: merge_flattened
-      reference_file: get_reference_library/filepath
-      output_prefix: comparison_name
-    out:
-      - output_file
-  
-  - id: add_missing_ntc
+  - id: add_missing_ntc_treatment
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-add_missing_ntc/main/cwl/add_missing_ntc.cwl
+    scatter: count_file
     in:
       count_file: 
-        source: merge_counts_files/output_file
+        source: syn_get_treatment_counts_files/filepath
       reference_file: 
         source: get_reference_ntc/filepath
     out:
       - output_file 
 
+  - id: add_missing_ntc_control
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-add_missing_ntc/main/cwl/add_missing_ntc.cwl
+    scatter: count_file
+    in:
+      count_file: 
+        source: syn_get_control_counts_files/filepath
+      reference_file: 
+        source: get_reference_ntc/filepath
+    out:
+      - output_file 
+
+  - id: merge_counts_files
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-merge_counts_files/v0.0.2/cwl/merge_counts_files.cwl
+    in: 
+      counts_files: 
+        source: [add_missing_ntc_treatment/output_file, add_missing_ntc_control/output_file]
+        linkMerge: merge_flattened
+      reference_file: get_reference_library/filepath
+      output_prefix: comparison_name
+    out:
+      - output_file
+
   - id: mageck_median_norm
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-mageck/v0.0.7/cwl/mageck.cwl
     in: 
       count_table: 
-        source: add_missing_ntc/output_file
+        source: merge_counts_files/output_file
       treatment_ids: 
-        source: syn_get_treatment_counts_files/filepath
+        source: add_missing_ntc_treatment/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       control_ids:
-        source: syn_get_control_counts_files/filepath
+        source: add_missing_ntc_control/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       output_prefix: 
         valueFrom: median_norm
@@ -121,12 +133,12 @@ steps:
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-mageck/v0.0.7/cwl/mageck.cwl
     in: 
       count_table: 
-        source: add_missing_ntc/output_file
+        source: merge_counts_files/output_file
       treatment_ids: 
-        source: syn_get_treatment_counts_files/filepath
+        source: add_missing_ntc_treatment/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       control_ids:
-        source: syn_get_control_counts_files/filepath
+        source: add_missing_ntc_control/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       control_sgrna:
         source: get_reference_ntc/filepath
