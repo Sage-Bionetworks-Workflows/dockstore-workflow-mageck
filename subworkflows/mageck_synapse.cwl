@@ -167,6 +167,29 @@ steps:
     out: 
       - file_id
 
+  - id: syn_get_annotations
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/cwl-tool-synapseclient/main/cwl/synapse-get-annotations-tool.cwl
+    in:
+      - id: synapse_config
+        source: synapse_config
+      - id: synapseid
+        source: treatment_synapse_ids
+        valueFrom: $(self[0])
+    out:
+      - annotations_file
+      - annotations_text
+
+  - id: syn_set_annotations
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/cwl-tool-synapseclient/main/cwl/synapse-set-annotations-tool.cwl
+    in:
+      - id: synapse_config
+        source: synapse_config
+      - id: synapseid
+        source: syn_create/file_id
+      - id: annotations_text
+        source: syn_get_annotations/annotations_text
+    out: []
+
   - id: syn_store_median_norm
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-synapseclient/v1.1/cwl/synapse-store-tool.cwl
     scatter: file_to_store
