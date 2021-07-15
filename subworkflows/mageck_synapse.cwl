@@ -74,11 +74,33 @@ steps:
       - synapse_id
       - filepath
 
+  - id: add_missing_ntc_treatment
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-add_missing_ntc/main/cwl/add_missing_ntc.cwl
+    scatter: count_file
+    in:
+      count_file: 
+        source: syn_get_treatment_counts_files/filepath
+      reference_file: 
+        source: get_reference_ntc/filepath
+    out:
+      - output_file 
+
+  - id: add_missing_ntc_control
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-add_missing_ntc/main/cwl/add_missing_ntc.cwl
+    scatter: count_file
+    in:
+      count_file: 
+        source: syn_get_control_counts_files/filepath
+      reference_file: 
+        source: get_reference_ntc/filepath
+    out:
+      - output_file 
+
   - id: merge_counts_files
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-merge_counts_files/v0.0.2/cwl/merge_counts_files.cwl
     in: 
       counts_files: 
-        source: [syn_get_treatment_counts_files/filepath, syn_get_control_counts_files/filepath]
+        source: [add_missing_ntc_treatment/output_file, add_missing_ntc_control/output_file]
         linkMerge: merge_flattened
       reference_file: get_reference_library/filepath
       output_prefix: comparison_name
@@ -91,10 +113,10 @@ steps:
       count_table: 
         source: merge_counts_files/output_file
       treatment_ids: 
-        source: syn_get_treatment_counts_files/filepath
+        source: add_missing_ntc_treatment/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       control_ids:
-        source: syn_get_control_counts_files/filepath
+        source: add_missing_ntc_control/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       output_prefix: 
         valueFrom: median_norm
@@ -113,10 +135,10 @@ steps:
       count_table: 
         source: merge_counts_files/output_file
       treatment_ids: 
-        source: syn_get_treatment_counts_files/filepath
+        source: add_missing_ntc_treatment/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       control_ids:
-        source: syn_get_control_counts_files/filepath
+        source: add_missing_ntc_control/output_file
         valueFrom: $(self.map(function (f) {return f.nameroot}))
       control_sgrna:
         source: get_reference_ntc/filepath
@@ -144,6 +166,29 @@ steps:
         valueFrom: Folder
     out: 
       - file_id
+
+  - id: syn_get_annotations
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/cwl-tool-synapseclient/main/cwl/synapse-get-annotations-tool.cwl
+    in:
+      - id: synapse_config
+        source: synapse_config
+      - id: synapseid
+        source: treatment_synapse_ids
+        valueFrom: $(self[0])
+    out:
+      - annotations_file
+      - annotations_text
+
+  - id: syn_set_annotations
+    run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/cwl-tool-synapseclient/main/cwl/synapse-set-annotations-tool.cwl
+    in:
+      - id: synapse_config
+        source: synapse_config
+      - id: synapseid
+        source: syn_create/file_id
+      - id: annotations_text
+        source: syn_get_annotations/annotations_text
+    out: []
 
   - id: syn_store_median_norm
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/dockstore-tool-synapseclient/v1.1/cwl/synapse-store-tool.cwl
@@ -210,3 +255,7 @@ s:author:
     s:name: Bruno Grande
     s:email: bruno.grande@sagebase.org
     s:identifier: https://orcid.org/0000-0002-4621-1589
+  - class: s:Person
+    s:name: Xindi Guo
+    s:email: xindi.guo@sagebase.org
+    s:identifier: https://orcid.org/0000-0002-0479-4317
