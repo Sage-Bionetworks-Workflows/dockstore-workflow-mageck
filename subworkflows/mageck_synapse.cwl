@@ -28,7 +28,10 @@ inputs:
   comparison_name: string
   output_parent_synapse_id: string
 
-outputs: {}
+outputs:
+  - id: output_folder_id
+    type: string
+    outputSource: syn_create/file_id
 
 steps:
 
